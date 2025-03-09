@@ -9,7 +9,7 @@
 // @todo: Вывести карточки на страницу
 
 // Получаем список, куда будем добавлять карточки
-const placesList = document.querySelector('.places__list');
+const cardsContainer = document.querySelector('.places__list');
 
 // Функция удаления карточки
 function deleteCard(event) {
@@ -19,7 +19,7 @@ function deleteCard(event) {
     }
 }
 
-// Функция создания карточки
+// Функция создания карточк
 function createCard(cardData, handleDelete) {
     const template = document.querySelector('#card-template').content;
     const cardElement = template.cloneNode(true);
@@ -41,5 +41,5 @@ function createCard(cardData, handleDelete) {
 // Отображаем начальные карточки
 initialCards.forEach((cardData) => {
     const cardElement = createCard(cardData, deleteCard);
-    placesList.append(cardElement);
+    cardsContainer.append(cardElement);
 });
