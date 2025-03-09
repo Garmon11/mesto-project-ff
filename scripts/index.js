@@ -8,44 +8,38 @@
 
 // @todo: Вывести карточки на страницу
 
-const cardsContainer = document.querySelector('.places__list');
-const template = document.querySelector('#card-template');
+// Получаем список, куда будем добавлять карточки
+const placesList = document.querySelector('.places__list');
+
+// Функция удаления карточки
+function deleteCard(event) {
+    const cardElement = event.target.closest('.places__item');
+    if (cardElement) {
+        cardElement.remove();
+    }
+}
 
 // Функция создания карточки
-function createCard(cardData) {
-    const templateClone = template.content.cloneNode(true);
-    const cardElement = templateClone.querySelector('.places__item');
+function createCard(cardData, handleDelete) {
+    const template = document.querySelector('#card-template').content;
+    const cardElement = template.cloneNode(true);
+
     const cardImage = cardElement.querySelector('.card__image');
     const cardTitle = cardElement.querySelector('.card__title');
+    const deleteButton = cardElement.querySelector('.card__delete-button');
 
     cardImage.src = cardData.link;
     cardImage.alt = cardData.name;
     cardTitle.textContent = cardData.name;
 
-    setupDeleteButton(cardElement); // Подключаем функцию удаления
+    // Устанавливаем обработчик удаления
+    deleteButton.addEventListener('click', handleDelete);
 
     return cardElement;
 }
 
-// Отображаем стартовые карточки
-initialCards.forEach((card) => {
-    const newCard = createCard(card);
-    cardsContainer.append(newCard);
+// Отображаем начальные карточки
+initialCards.forEach((cardData) => {
+    const cardElement = createCard(cardData, deleteCard);
+    placesList.append(cardElement);
 });
-
-// уделние карточки
-function setupDeleteButton(cardElement) {
-        const deleteButton = cardElement.querySelector('.card__delete-button');
-        deleteButton.addEventListener('click', () => {
-        cardElement.remove();
-    });
-}
-
-
-// Добавление новой карточки
-// const addBtn = document.querySelector('.profile__add-button');
-// addBtn.addEventListener('click', () => {
-//     const randomCard = initialCards[Math.floor(Math.random() * initialCards.length)];
-//     const newCard = createCard(randomCard);
-//     cardsContainer.append(newCard);
-// });
