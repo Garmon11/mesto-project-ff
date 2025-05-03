@@ -22,6 +22,7 @@ const imagePopup = document.querySelector(".popup_type_image");
 const imagePopupImage = imagePopup.querySelector(".popup__image");
 const imagePopupTitle = imagePopup.querySelector(".popup__caption");
 
+// форма профиля
 const profileFormElement = document.querySelector(".popup__form");
 const nameInput = profileFormElement.querySelector(".popup__input_type_name");
 const jobInput = profileFormElement.querySelector(".popup__input_type_description");
@@ -81,6 +82,104 @@ function handleProfileSubmit(evt) {
 
   closeModal(editPopup);
 }
+
+// const showInputError = (inputElement) => {
+//   const errorElement = document.querySelector(`#${inputElement.id}-error`);
+//   inputElement.classList.add('form__input_type_error');
+//   errorElement.classList.add('form__input-error_active');
+// };
+
+// const hideInputError = (inputElement) => {
+//   const errorElement = document.querySelector(`#${inputElement.id}-error`);
+//   inputElement.classList.remove('form__input_type_error');
+//   errorElement.classList.remove('form__input-error_active');
+// };
+
+// const isValid = () => {
+//   if (!nameInput.validity.valid) {
+//     showInputError(nameInput);
+//   } else {
+//     hideInputError(nameInput);
+//   }
+
+//   if (!jobInput.validity.valid) {
+//     showInputError(jobInput);
+//   } else {
+//     hideInputError(jobInput);
+//   }
+// };
+
+// nameInput.addEventListener('input', isValid);
+// jobInput.addEventListener('input', isValid);
+
+// Валидация полей
+const showInputError = (inputElement) => {
+  const errorElement = document.querySelector(`#${inputElement.id}-error`);
+  inputElement.classList.add('form__input_type_error');
+
+  if (errorElement) {
+    errorElement.classList.add('form__input-error_active');
+
+    if (inputElement.validity.valueMissing) {
+      // Используем дефолтное сообщение из HTML, если поле пустое
+      errorElement.textContent = errorElement.dataset.default;
+    }
+  }
+};
+
+const hideInputError = (inputElement) => {
+  const errorElement = document.querySelector(`#${inputElement.id}-error`);
+  inputElement.classList.remove('form__input_type_error');
+
+  if (errorElement) {
+    errorElement.classList.remove('form__input-error_active');
+    errorElement.textContent = '';
+  }
+};
+
+const isValid = (evt) => {
+  const inputElement = evt.target;
+  if (!inputElement.validity.valid) {
+    showInputError(inputElement);
+  } else {
+    hideInputError(inputElement);
+  }
+};
+
+const toggleButtonState = (form) => {
+  const button = form.querySelector('button[type="submit"]');
+  const inputs = Array.from(form.querySelectorAll('input'));
+  const hasInvalidInput = inputs.some(input => !input.validity.valid);
+
+  if (hasInvalidInput) {
+    button.setAttribute('disabled', true);
+    button.classList.add('button_disabled');
+  } else {
+    button.removeAttribute('disabled');
+    button.classList.remove('button_disabled');
+  }
+};
+
+const allForms = document.querySelectorAll('form');
+
+allForms.forEach(form => {
+  const inputs = form.querySelectorAll('input');
+
+  inputs.forEach(input => {
+    const errorElement = document.querySelector(`#${input.id}-error`);
+    if (errorElement) {
+      errorElement.dataset.default = errorElement.textContent; // сохраняем дефолтную подпись
+    }
+
+    input.addEventListener('input', (evt) => {
+      isValid(evt);
+      toggleButtonState(form);
+    });
+  });
+
+  toggleButtonState(form);
+});
+
 
 profileFormElement.addEventListener("submit", handleProfileSubmit);
 
