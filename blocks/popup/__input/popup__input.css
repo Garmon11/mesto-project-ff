@@ -21,18 +21,21 @@
   }
 }
 
-.form__input_type_error {
-  border-bottom-color: red;
-}
-
 .form__input-error {
+  border-bottom-color: red;
   font-size: 12px;
   color: red;
-  opacity: 0;
   transition: opacity 0.3s;
-  min-height: 14px; /* Чтобы не прыгал layout */
+  min-height: 14px;
 }
 
 .form__input-error_active {
   opacity: 1;
 }
+
+/* .form__input-error_active {
+  font-size: 12px;
+  color: red;
+  transition: opacity 0.3s;
+  min-height: 14px;
+} */

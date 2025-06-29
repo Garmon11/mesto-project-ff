@@ -14,8 +14,9 @@
   </header>
   <main class="content">
     <section class="profile page__section">
-      <img src="<%=require('../images/avatar.jpg')%>" class="profile__image">
-      <!-- <div class="profile__image" style="background-image: url("<%=require('../images/avatar.jpg')%>')"></div> -->
+      <div class="profile-img-wrapper">
+        <img src="" class="profile__image">
+      </div>
       <div class="profile__info">
         <h1 class="profile__title">Жак-Ив Кусто</h1>
         <button class="profile__edit-button" type="button"></button>
@@ -38,24 +39,53 @@
       <button type="button" class="popup__close"></button>
       <h3 class="popup__title">Редактировать профиль</h3>
       <form class="popup__form" name="edit-profile" novalidate>
-        <input id="name-input" type="text" name="name" class="popup__input popup__input_type_name" placeholder="Имя" minlength="2" maxlength="40" required>
-        <span class="form__input-error" id="name-input-error">Вы пропустили это поле</span>
-        <input id="description" type="text" name="description" class="popup__input popup__input_type_description" placeholder="Занятие" minlength="2" maxlength="200" required>
-        <span id="description-error" class="form__input-error">Вы пропустили это поле</span>
-        <button type="submit" class="button popup__button">Сохранить</button>
+          <input id="name-input" type="text" name="name" class="popup__input popup__input_type_name" placeholder="Имя" minlength="2" maxlength="40" pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$" required/>
+          <span class="form__input-error name-input-error" data-default="Вы пропустили это поле"></span>
+          <input id="description-input" type="text" name="description" class="popup__input popup__input_type_description" placeholder="Занятие" minlength="2" maxlength="200" pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$" required/>
+          <span class="form__input-error description-input-error" data-default="Вы пропустили это поле"></span>
+          <button type="submit" class="button popup__button">
+            Сохранить
+          </button>
       </form>
     </div>
   </div>
+
+  <div class="popup popup_type_edit edit-avatar popup_is-animated">
+    <div class="popup__content-avatar">
+      <button type="button" class="popup__close"></button>
+      <h3 class="popup__title">Обновить аватар</h3>
+      <form class="popup__form popup-edit-avatar" name="edit-profile" novalidate>
+        <input id="avatar-input" type="url" name="link" class="popup__input input-edit-avatar popup__input_type_url" placeholder="Ссылка на картинку" required/>
+        <span class="form__input-error avatar-input-error" data-default="Введите адрес сайта"></span>
+          <button type="submit" class="button popup__button popup-button-avatar">
+            Сохранить
+          </button>
+      </form>
+    </div>
+  </div>
+  
   <div class="popup popup_type_new-card popup_is-animated">
     <div class="popup__content">
       <button type="button" class="popup__close"></button>
       <h3 class="popup__title">Новое место</h3>
       <form class="popup__form" name="new-place" novalidate>
-        <input id="new-place-name" type="text" name="place-name" class="popup__input popup__input_type_card-name" placeholder="Название" required>
-        <span id="new-place-error" class="form__input-error" data-default="Вы пропустили это поле">Вы пропустили это поле</span>
-        <input id="link-input" type="url" name="link" class="popup__input popup__input_type_url" placeholder="Ссылка на картинку" required>
-        <span id="link-input-error" class="form__input-error" data-default="Введите адрес сайта">Введите адрес сайта</span>
-        <button type="submit" class="button popup__button">Сохранить</button>
+          <input id="place-input" type="text" name="place-name" class="popup__input popup__input_type_card-name" placeholder="Название" required
+            pattern="^[a-zA-Zа-яА-ЯёЁ\- ]+$" />
+          <span class="form__input-error place-input-error" data-default="Вы пропустили это поле"></span>
+          <input id="link-input" type="url" name="link" class="popup__input popup__input_type_url" placeholder="Ссылка на картинку" required/>
+          <span class="form__input-error link-input-error" data-default="Введите адрес сайта"></span>
+          <button type="submit" class="button popup__button">
+            Сохранить
+          </button>
+      </form>
+    </div>
+  </div>
+  <div class="popup popup_type_confirm">
+    <div class="popup__container popup__container_type_confirm">
+      <button type="button" class="popup__close"></button>
+      <h2 class="popup__title popup__title_type_confirm">Вы уверены?</h2>
+      <form class="popup__form_type_confirm" name="confirm-form">
+        <button class="popup__save-button popup__confirm-button" type="submit">Да</button>
       </form>
     </div>
   </div>
@@ -75,7 +105,10 @@
     <div class="card__description">
       <h2 class="card__title">
       </h2>
-      <button type="button" class="card__like-button"></button>
+      <div>
+        <button type="button" class="card__like-button"></button>
+        <span class="like-count"></span>
+      </div>
     </div>
   </li>
 </template>

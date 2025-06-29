@@ -31,9 +31,45 @@
   color: red;
   opacity: 0;
   transition: opacity 0.3s;
-  min-height: 14px; /* Чтобы не прыгал layout */
+  min-height: 14px;
 }
 
 .form__input-error_active {
   opacity: 1;
 }
+
+.like-count {
+  display: block;
+  margin-left: 5px;
+}
+
+.popup__container_type_confirm {
+  padding: 36px;
+  background-color: #fff;
+  border-radius: 10px;
+  max-width: 400px;
+  text-align: center;
+}
+
+.popup__title_type_confirm {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 24px;
+}
+
+.popup__confirm-button {
+  background-color: #000;
+  color: #fff;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 14px 0;
+  width: 100%;
+  border: none;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.popup__confirm-button:hover {
+  opacity: 0.8;
+}
+
