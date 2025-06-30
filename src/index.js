@@ -1,4 +1,3 @@
-// import { initialCards } from "./cards.js";
 import { createCard, deleteCard, likeCard } from "./card.js";
 import { openModal, closeModal } from "./modal.js";
 import { enableValidation, clearValidation } from "./validation.js";
@@ -18,38 +17,37 @@ const cardTemplate = document.querySelector("#card-template").content;
 // DOM узлы
 const places = document.querySelector(".places__list");
 
-// переменные
+// кнопки и попапы
 const editButton = document.querySelector(".profile__edit-button");
+const addButton = document.querySelector(".profile__add-button");
+const profileImgWrapper = document.querySelector(".profile-img-wrapper");
+const closeButtons = document.querySelectorAll(".popup__close");
+
 const editPopup = document.querySelector(".popup_type_edit");
 const addPopup = document.querySelector(".popup_type_new-card");
 const editAvatar = document.querySelector(".edit-avatar");
-const closeButtons = document.querySelectorAll(".popup__close");
-const addButton = document.querySelector(".profile__add-button");
-
-const profileTitle = document.querySelector(".profile__title");
-const profileDesc = document.querySelector(".profile__description");
 
 const imagePopup = document.querySelector(".popup_type_image");
 const imagePopupImage = imagePopup.querySelector(".popup__image");
 const imagePopupTitle = imagePopup.querySelector(".popup__caption");
 
+// профиль
+const profileTitle = document.querySelector(".profile__title");
+const profileDesc = document.querySelector(".profile__description");
+const profileAvatar = document.querySelector(".profile__image");
+
+// формы
 const profileFormElement = document.querySelector(".popup__form");
 const nameInput = profileFormElement.querySelector(".popup__input_type_name");
-const jobInput = profileFormElement.querySelector(
-  ".popup__input_type_description"
-);
-const profileAvatar = document.querySelector(".profile__image");
+const jobInput = profileFormElement.querySelector(".popup__input_type_description");
+
 const popupAvatarForm = document.querySelector(".popup-edit-avatar");
 const inoutAvatar = document.querySelector(".input-edit-avatar");
 const popupButtonAvatar = document.querySelector(".popup-button-avatar");
 
 const cardFormElement = document.forms["new-place"];
-const cardNameInput = cardFormElement.querySelector(
-  ".popup__input_type_card-name"
-);
+const cardNameInput = cardFormElement.querySelector(".popup__input_type_card-name");
 const cardImageInput = cardFormElement.querySelector(".popup__input_type_url");
-
-const profileImgWrapper = document.querySelector(".profile-img-wrapper");
 
 let profileData;
 
@@ -66,53 +64,67 @@ function addCard(cardItem, profileData) {
   places.prepend(cardElement);
 }
 
-Promise.all([cardGet(), profileGet()]).then((data) => {
-  // console.log(data)
-  const cards = data[0];
-  profileData = data[1];
+// Получение данных с сервера
+Promise.all([cardGet(), profileGet()])
+  .then(([cards, profile]) => {
+    profileData = profile;
 
-  renderCards(cards.slice(0, 6).reverse(), profileData);
+    renderCards(cards.slice(0, 6).reverse(), profileData);
 
-  profileTitle.textContent = profileData.name;
-  profileDesc.textContent = profileData.about;
+    profileTitle.textContent = profile.name;
+    profileDesc.textContent = profile.about;
+    profileAvatar.src = profile.avatar;
+  })
+  .catch((err) => {
+    console.error("Ошибка при загрузке данных:", err);
+  });
 
-  profileAvatar.src = profileData.avatar;
-});
-
+// Обработчик отправки формы обновления аватара
 popupAvatarForm.addEventListener("submit", (evt) => {
   evt.preventDefault();
 
   const link = inoutAvatar.value;
-  popupButtonAvatar.textContent = "Сохранить...";
-  avatarPatch(link).then((data) => {
-    console.log(data);
-    profileAvatar.src = data.avatar;
-    popupButtonAvatar.textContent = "Сохранить";
-    closeModal(editAvatar);
-  });
+  popupButtonAvatar.textContent = "Сохранение...";
+
+  avatarPatch(link)
+    .then((data) => {
+      profileAvatar.src = data.avatar;
+      closeModal(editAvatar);
+    })
+    .catch((err) => {
+      console.error("Ошибка при обновлении аватара:", err);
+    })
+    .finally(() => {
+      popupButtonAvatar.textContent = "Сохранить";
+    });
 });
 
+// Отрисовать карточки
 function renderCards(initialCards, profileData) {
   initialCards.forEach((card) => addCard(card, profileData));
 }
 
-// обработчик кликов на кнопки
+// Обработчики открытия попапов
 editButton.addEventListener("click", function () {
   nameInput.value = profileTitle.textContent;
   jobInput.value = profileDesc.textContent;
-
+  clearValidation(profileFormElement, validationConfig);
   openModal(editPopup);
 });
 
 addButton.addEventListener("click", function () {
+  cardFormElement.reset();
+  clearValidation(cardFormElement, validationConfig);
   openModal(addPopup);
 });
 
 profileImgWrapper.addEventListener("click", function () {
+  popupAvatarForm.reset();
+  clearValidation(popupAvatarForm, validationConfig);
   openModal(editAvatar);
 });
 
-// закрытие попапов по кнопке закрытия и оверлею
+// Закрытие попапов по кнопке и клику на оверлей
 closeButtons.forEach(function (button) {
   const popup = button.closest(".popup");
   button.addEventListener("click", () => closeModal(popup));
@@ -123,7 +135,7 @@ closeButtons.forEach(function (button) {
   });
 });
 
-// открытие попапа с картинкой
+// Открытие попапа с картинкой
 function openImagePopup(link, name) {
   imagePopupImage.src = link;
   imagePopupImage.alt = name;
@@ -131,6 +143,7 @@ function openImagePopup(link, name) {
   openModal(imagePopup);
 }
 
+// Обработчик формы профиля
 function handleProfileSubmit(evt) {
   evt.preventDefault();
   const saveButton = evt.submitter;
@@ -157,7 +170,7 @@ function handleProfileSubmit(evt) {
 
 profileFormElement.addEventListener("submit", handleProfileSubmit);
 
-// добавление новых карточек
+// Обработчик добавления новой карточки
 function handleCardSubmit(evt) {
   evt.preventDefault();
   const saveButton = evt.submitter;
@@ -183,4 +196,6 @@ function handleCardSubmit(evt) {
 }
 
 cardFormElement.addEventListener("submit", handleCardSubmit);
+
+// Включаем валидацию
 enableValidation(validationConfig);

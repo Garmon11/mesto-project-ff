@@ -1,81 +1,78 @@
-const showInputError = (formElement, inputElement, errorMessage) => {
+const showInputError = (formElement, inputElement, errorMessage, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.add("form__input_type_error");
+  inputElement.classList.add(config.inputErrorClass);
   errorElement.textContent = errorMessage;
-  errorElement.classList.add("form__input-error_active");
-  console.log(123, errorElement);
+  errorElement.classList.add(config.errorClass);
 };
 
-const hideInputError = (formElement, inputElement) => {
+const hideInputError = (formElement, inputElement, config) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.remove("form__input_type_error");
-  errorElement.classList.remove("form__input-error_active");
+  inputElement.classList.remove(config.inputErrorClass);
+  errorElement.classList.remove(config.errorClass);
   errorElement.textContent = "";
 };
 
-const isValid = (formElement, inputElement) => {
+const isValid = (formElement, inputElement, config) => {
   let errorMessage = inputElement.validationMessage;
 
-  if (inputElement.name === "link" && !inputElement.validity.valid) {
-    errorMessage = "Введите адрес сайта";
-  } else if (inputElement.validity.patternMismatch) {
-    errorMessage =
-      inputElement.dataset.patternMessage ||
-      "Разрешены только латинские, кириллические буквы, знаки дефиса и пробелы";
-  } else if (
-    inputElement.validity.valueMissing &&
-    inputElement.dataset.default
-  ) {
+  if (inputElement.validity.patternMismatch) {
+    errorMessage = inputElement.dataset.patternMessage || errorMessage;
+  } else if (inputElement.validity.valueMissing && inputElement.dataset.default) {
     errorMessage = inputElement.dataset.default;
   }
-  console.log(1);
 
   if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, errorMessage);
+    showInputError(formElement, inputElement, errorMessage, config);
   } else {
-    hideInputError(formElement, inputElement);
+    hideInputError(formElement, inputElement, config);
   }
 };
 
-const toggleButtonState = (formElement) => {
-  const button = formElement.querySelector(".popup__button");
-  const inputs = Array.from(formElement.querySelectorAll(".popup__input"));
+const disableSubmitButton = (button, config) => {
+  button.classList.add(config.inactiveButtonClass);
+  button.disabled = true;
+};
+
+const enableSubmitButton = (button, config) => {
+  button.classList.remove(config.inactiveButtonClass);
+  button.disabled = false;
+};
+
+const toggleButtonState = (formElement, config) => {
+  const button = formElement.querySelector(config.submitButtonSelector);
+  const inputs = Array.from(formElement.querySelectorAll(config.inputSelector));
   const hasInvalidInput = inputs.some((input) => !input.validity.valid);
 
   if (hasInvalidInput) {
-    button.classList.add("popup__button_disabled");
-    button.disabled = true;
+    disableSubmitButton(button, config);
   } else {
-    button.classList.remove("popup__button_disabled");
-    button.disabled = false;
+    enableSubmitButton(button, config);
   }
 };
 
-const setEventListeners = (formElement) => {
-  const inputList = Array.from(formElement.querySelectorAll(".popup__input"));
+const setEventListeners = (formElement, config) => {
+  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
   inputList.forEach((inputElement) => {
     inputElement.addEventListener("input", () => {
-      isValid(formElement, inputElement);
-      toggleButtonState(formElement);
+      isValid(formElement, inputElement, config);
+      toggleButtonState(formElement, config);
     });
   });
-  toggleButtonState(formElement); // на старте при инициализации
+  toggleButtonState(formElement, config);
 };
 
-export const enableValidation = () => {
-  const formList = Array.from(document.querySelectorAll(".popup__form"));
+export const enableValidation = (config) => {
+  const formList = Array.from(document.querySelectorAll(config.formSelector));
   formList.forEach((formElement) => {
-    setEventListeners(formElement);
+    setEventListeners(formElement, config);
   });
 };
 
-// функция очистки валидации
-export const clearValidation = (formElement) => {
-  const inputList = Array.from(formElement.querySelectorAll(".popup__input"));
+export const clearValidation = (formElement, config) => {
+  const inputList = Array.from(formElement.querySelectorAll(config.inputSelector));
   inputList.forEach((inputElement) => {
-    hideInputError(formElement, inputElement);
+    hideInputError(formElement, inputElement, config);
   });
-  const button = formElement.querySelector(".popup__button");
-  button.classList.add("popup__button_disabled");
-  button.disabled = true;
+  const button = formElement.querySelector(config.submitButtonSelector);
+  disableSubmitButton(button, config);
 };

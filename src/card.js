@@ -1,9 +1,11 @@
 import { cardDelete, putLikes, deleteLike } from "./api.js";
+import { openModal, closeModal } from "./modal.js";
 
-// Функция создания карточки
+let currentConfirmHandler = null;
+
 function createCard(
   cardItem,
-  deleteCard,
+  onDeleteConfirm,
   openImagePopup,
   likeCard,
   cardTemplate,
@@ -24,30 +26,26 @@ function createCard(
   cardImage.src = cardItem.link;
   cardImage.alt = cardItem.name;
   cardTitle.textContent = cardItem.name;
-  console.log(cardItem);
-
   likeCount.textContent = cardItem.likes.length;
 
-  // console.log(cardItem.owner._id, profileData._id);
   if (cardItem.owner._id !== profileData._id) {
     deleteButton.classList.add("card__delete-button-disable");
   }
 
   deleteButton.addEventListener("click", function () {
-    popupTypeConfirm.classList.add("popup_is-opened");
-    // слушать клик по кнопке "ок"
-    // при клике
-    // - удалить карточку
-    // - закрыть модалку
-    // - перестать слушать клик по кнопке "ок"
-    const onConfirmDeleteClick = () => {
-      cardDelete(cardItem._id);
-      deleteCard(cardElement);
-      popupTypeConfirm.classList.remove("popup_is-opened");
-      popupConfirmButton.removeEventListener("click", onConfirmDeleteClick);
-    };
+    openModal(popupTypeConfirm);
 
-    popupConfirmButton.addEventListener("click", onConfirmDeleteClick);
+    // Переназначаем обработчик подтверждения
+    popupConfirmButton.onclick = () => {
+      cardDelete(cardItem._id)
+        .then(() => {
+          onDeleteConfirm(cardElement);
+          closeModal(popupTypeConfirm);
+        })
+        .catch((err) => {
+          console.error("Ошибка удаления карточки:", err);
+        });
+    };
 
     popupFormTypeConfirm.addEventListener("submit", (evt) => {
       evt.preventDefault();
@@ -67,9 +65,8 @@ function createCard(
   const userHasLiked = cardItem.likes.some(
     (user) => user._id === profileData._id
   );
-  if (userHasLiked) {
-    likeButton.classList.add("card__like-button_is-active");
-  }
+  likeButton.classList.toggle("card__like-button_is-active", userHasLiked);
+
   cardImage.addEventListener("click", function () {
     openImagePopup(cardItem.link, cardItem.name);
   });
@@ -77,35 +74,22 @@ function createCard(
   return cardElement;
 }
 
-// Функции удаления и лайка карточки
 function deleteCard(cardElement) {
   cardElement.remove();
 }
 
 function likeCard(button, cardId, likeCountElement, likesArray, currentUserId) {
   const userHasLiked = likesArray.some((user) => user._id === currentUserId);
-
   const request = userHasLiked ? deleteLike(cardId) : putLikes(cardId);
 
   request
     .then((updatedCard) => {
-      // Обновим счётчик
       likeCountElement.textContent = updatedCard.likes.length;
-
-      // Обновим стиль кнопки
       const userStillLikes = updatedCard.likes.some(
         (user) => user._id === currentUserId
       );
-
-      if (userStillLikes) {
-        button.classList.add("card__like-button_is-active");
-      } else {
-        button.classList.remove("card__like-button_is-active");
-      }
-
-      // Чтобы при следующем клике снова была актуальная информация:
-      likesArray.length = 0;
-      updatedCard.likes.forEach((like) => likesArray.push(like));
+      button.classList.toggle("card__like-button_is-active", userStillLikes);
+      likesArray = updatedCard.likes;
     })
     .catch((err) => {
       console.error("Ошибка лайка:", err);
